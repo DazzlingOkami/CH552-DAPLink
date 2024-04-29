@@ -1,0 +1,7 @@
+﻿*.bin
+*.hex
+*.ihx
+*.lk
+*.map
+*.mem
+build/
