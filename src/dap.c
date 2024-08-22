@@ -246,8 +246,8 @@ uint8_t SWD_Transfer(uint8_t req, __xdata uint8_t *data) {
           parity += bit;
           val >>= 1;
           if(bit) val |= 0x80;
-         }
-         if(data) data[m] = val;
+        }
+        if(data) data[m] = val;
       }
       SWD_READ_BIT(bit);          // read parity
       if((parity ^ bit) & 1U)
@@ -573,6 +573,13 @@ static uint8_t DAP_SWJ_Pins(const __xdata uint8_t *req, __xdata uint8_t *res) {
   }
   if((select & DAP_SWJ_nRESET_BIT) != 0U) {
     RST_SET(value >> DAP_SWJ_nRESET);
+
+    // Cortex-M core reset by software
+    #define SCB_ARICR_ADDR (0xE000ED0C)
+    extern uint8_t swd_write_word(uint32_t addr, uint32_t val);
+    if(((value >> DAP_SWJ_nRESET) & 1) == 0U){
+      swd_write_word(SCB_ARICR_ADDR, 0x05FA0004);
+    }
   }
 
   if(wait != 0U) {
