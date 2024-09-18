@@ -34,7 +34,7 @@
 #include "dap_io.h"
 
 // DAP Firmware Version
-#define DAP_FW_VER                "1.2.2"
+#define DAP_FW_VER                "1.2.3"
 
 // DAP Command IDs
 #define ID_DAP_Info               0x00U

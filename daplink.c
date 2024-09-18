@@ -97,8 +97,8 @@ void main(void) {
 
     // Handle virtual COM
     if(CDC_available() && UART_ready()) UART_write(CDC_read());
-    if(UART_available()) {
-      while(UART_available()) CDC_write(UART_read());
+    if(UART_available() && CDC_ready()) {
+      while(UART_available() && CDC_ready()) CDC_write(UART_read());
       CDC_flush();
     }
   }

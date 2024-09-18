@@ -70,7 +70,7 @@ void CDC_flush(void) {
 
 // Write single character to OUT buffer
 void CDC_write(char c) {
-  while(CDC_writeBusyFlag);                             // wait for ready to write
+  if(CDC_writeBusyFlag) return;                         // wait for ready to write
   EP2_buffer[64 + CDC_writePointer++] = c;              // write character
   if(CDC_writePointer == EP2_SIZE) CDC_flush();         // flush if buffer full
 }
@@ -131,6 +131,7 @@ uint8_t CDC_control(void) {
         return sizeof(CDC_lineCodingB);
       case SET_CONTROL_LINE_STATE:            // 0x22  generates RS-232/V.24 style control signals
         CDC_controlLineState = EP0_buffer[2]; // read control line state
+        // RTS and DTR signals maybe unable to determine the connection status
         LED_VCP_SET(CDC_DTR_flag);            // set LED
         return 0;
       case SET_LINE_CODING:                   // 0x20  Configure
@@ -150,6 +151,8 @@ void CDC_EP0_OUT(void) {
       for(i=0; i<((sizeof(CDC_lineCodingB)<=USB_RX_LEN)?sizeof(CDC_lineCodingB):USB_RX_LEN); i++)
         ((uint8_t*)&CDC_lineCodingB)[i] = EP0_buffer[i];    // receive line coding from host
       UART_setBAUD(CDC_lineCoding->baudrate);               // set UART BAUD rate
+      CDC_writeBusyFlag = 0;                                // clear busy flag
+      CDC_writePointer  = 0;                                // reset write pointer
       UEP0_T_LEN = 0;
       UEP0_CTRL |= UEP_R_RES_ACK | UEP_T_RES_ACK;           // send 0-length packet
     }
